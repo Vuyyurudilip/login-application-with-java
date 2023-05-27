@@ -6,9 +6,9 @@ import java.sql.*;
 
 public class insert {
   public static void main(String[] args) {  
-     String DB_URL = "jdbc:mysql://localhost:3306/db";
-     String DB_USER = "root";
-     String DB_PASSWORD = "password";
+     String DB_URL = "jdbc:mysql://localhost:3306/databaseName";
+     String DB_USER = "user";
+     String DB_PASSWORD = "passwordofdatabase";
     Connection connection = null;
     
         try{ 
@@ -71,7 +71,7 @@ class LoginForm extends JFrame {
     }
 
     private boolean validateCredentials(Connection connection, String username, String password) {
-        String query = "SELECT * FROM table1 WHERE username = ? AND password = ?";
+        String query = "SELECT * FROM table WHERE username = ? AND password = ?";
 
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, username);
