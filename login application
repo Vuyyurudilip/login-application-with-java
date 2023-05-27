@@ -1,0 +1,87 @@
+import java.sql.*;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.sql.*;
+
+public class insert {
+  public static void main(String[] args) {  
+     String DB_URL = "jdbc:mysql://localhost:3306/db";
+     String DB_USER = "root";
+     String DB_PASSWORD = "password";
+    Connection connection = null;
+    
+        try{ 
+            connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+            // Create the login form and handle the login button action
+            LoginForm loginForm = new LoginForm(connection);
+            loginForm.setVisible(true);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+class LoginForm extends JFrame {
+    private JTextField usernameField;
+    private JPasswordField passwordField;
+
+    public LoginForm(Connection connection) {
+        // Initialize the UI components
+        setTitle("Login");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(300, 150);
+        setResizable(false);\=[}
+
+
+        setLocationRelativeTo(null);
+
+        JPanel panel = new JPanel(new GridLayout(3, 2));
+        JLabel usernameLabel = new JLabel("Username:");
+        JLabel passwordLabel = new JLabel("Password:");
+        usernameField = new JTextField(20);
+        passwordField = new JPasswordField(20);
+        JButton loginButton = new JButton("Login");
+
+        panel.add(usernameLabel);
+        panel.add(usernameField);
+        panel.add(passwordLabel);
+        panel.add(passwordField);
+        panel.add(new JLabel());
+        panel.add(loginButton);
+
+        add(panel);
+
+        // Handle the login button action
+        loginButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String username = usernameField.getText();
+                String password = new String(passwordField.getPassword());
+
+                if (validateCredentials(connection, username, password)) {
+                    // Credentials are valid, allow access
+                    JOptionPane.showMessageDialog(null, "Login successful!");
+                } else {
+                    // Invalid credentials, show error message
+                    JOptionPane.showMessageDialog(null, "Invalid username or password.", "Login Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+    }
+
+    private boolean validateCredentials(Connection connection, String username, String password) {
+        String query = "SELECT * FROM table1 WHERE username = ? AND password = ?";
+
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, username);
+            statement.setString(2, password);
+            ResultSet resultSet = statement.executeQuery();
+
+            return resultSet.next(); // True if there is a match, false otherwise
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+}
