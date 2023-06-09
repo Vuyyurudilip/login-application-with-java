@@ -52,9 +52,9 @@ public class LoginApplication extends JFrame {
         ResultSet rs = null;
         try {
             // Establish a connection to the MySQL database
-            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/db", "root", "password");
+            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/your database name", "username", "your password");
             // Prepare the SQL query
-            String sql = "SELECT * FROM table1 WHERE username = ? AND password = ?";
+            String sql = "SELECT * FROM tablename WHERE username = ? AND password = ?";
             stmt = conn.prepareStatement(sql);
             stmt.setString(1, username);
             stmt.setString(2, password);
