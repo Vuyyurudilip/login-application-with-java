@@ -1,87 +1,101 @@
-import java.sql.*;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.*;
-
-public class insert {
-  public static void main(String[] args) {  
-     String DB_URL = "jdbc:mysql://localhost:3306/databaseName";
-     String DB_USER = "user";
-     String DB_PASSWORD = "passwordofdatabase";
-    Connection connection = null;
-    
-        try{ 
-            connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-            // Create the login form and handle the login button action
-            LoginForm loginForm = new LoginForm(connection);
-            loginForm.setVisible(true);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-}
-
-class LoginForm extends JFrame {
+public class LoginApplication extends JFrame {
     private JTextField usernameField;
     private JPasswordField passwordField;
-
-    public LoginForm(Connection connection) {
-        // Initialize the UI components
-        setTitle("Login");
+    public LoginApplication() {
+        // Set up the frame
+        setTitle("Login Application");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(300, 150);
-        setResizable(false);\=[}
-
-
-        setLocationRelativeTo(null);
-
-        JPanel panel = new JPanel(new GridLayout(3, 2));
+        setSize(300, 200);
+        setLocationRelativeTo(null); // Center the frame on the screen
+        // Create the components
         JLabel usernameLabel = new JLabel("Username:");
         JLabel passwordLabel = new JLabel("Password:");
         usernameField = new JTextField(20);
         passwordField = new JPasswordField(20);
         JButton loginButton = new JButton("Login");
-
+        // Create a panel and set the layout
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(3, 2, 10, 10));
         panel.add(usernameLabel);
         panel.add(usernameField);
         panel.add(passwordLabel);
         panel.add(passwordField);
-        panel.add(new JLabel());
+        panel.add(new JLabel()); // Empty label for spacing
         panel.add(loginButton);
-
+        // Add the panel to the frame
         add(panel);
-
-        // Handle the login button action
+        // Add an action listener to the login button
         loginButton.addActionListener(new ActionListener() {
-            @Override
             public void actionPerformed(ActionEvent e) {
                 String username = usernameField.getText();
                 String password = new String(passwordField.getPassword());
-
-                if (validateCredentials(connection, username, password)) {
-                    // Credentials are valid, allow access
-                    JOptionPane.showMessageDialog(null, "Login successful!");
+                // Call the method for validating the login
+                boolean isValid = validateLogin(username, password);
+                if (isValid) {
+                    JOptionPane.showMessageDialog(LoginApplication.this, "Login successful!");
+                    // Open the main application window or perform other actions
                 } else {
-                    // Invalid credentials, show error message
-                    JOptionPane.showMessageDialog(null, "Invalid username or password.", "Login Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(LoginApplication.this, "Invalid username or password. Please try again.");
                 }
             }
         });
     }
-
-    private boolean validateCredentials(Connection connection, String username, String password) {
-        String query = "SELECT * FROM table WHERE username = ? AND password = ?";
-
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setString(1, username);
-            statement.setString(2, password);
-            ResultSet resultSet = statement.executeQuery();
-
-            return resultSet.next(); // True if there is a match, false otherwise
+    // Method for validating the login
+    private boolean validateLogin(String username, String password) {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        try {
+            // Establish a connection to the MySQL database
+            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/db", "root", "password");
+            // Prepare the SQL query
+            String sql = "SELECT * FROM table1 WHERE username = ? AND password = ?";
+            stmt = conn.prepareStatement(sql);
+            stmt.setString(1, username);
+            stmt.setString(2, password);
+            // Execute the query
+            rs = stmt.executeQuery();
+            // Check if a matching record is found
+            return rs.next();
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
+        } finally {
+            // Close the resources
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
+    }
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                LoginApplication loginApp = new LoginApplication();
+                loginApp.setVisible(true);
+            }
+        });
     }
 }
